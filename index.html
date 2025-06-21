@@ -11,8 +11,8 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyBjbGFzcz0idy04IGgtOCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgZmlsbD0iI0ZGN0YwMCI+CiAgICA8cGF0aCBkPSJNNTAuNSBMOTAuMjUsIDI1LjI1IEw5MC4yNSwgNzUuNzUgTDUwLjUsIDk1Ljc1IEwxMC43NSwgNzUuNzUgTDEwLjc1LDI1Ljc1IFoiIHN0cm9rZT0iI0ZGN0YwMCIgc3Ryb2tlLXdpZHRoPSI1IiBmaWxsPSJub25lIi8+CiAgICA8Y2lyY2xlIGN4PSI1MC4yNSIgY3k9IjUwLjI1IiByPSIxNS4yNSIgZmlsbD0iI0ZGN0YwMCIvPgogICAgPGVsbGlwc2UgY3g9IjYwLjI1IiBjeT0iNDAuMjUiIHJ4PSIxMC4yNSIgcnk9IjYuMjUiIHRyYW5zZm9ybT0icm90YXRlKC0zMCA2MC4yNSA0MC4yNSkiIGZpbGw9IiNGRkE1MDAiIG9wYWNpdHk9IjAuNyIvPgogICAgPGVsbGlwc2UgY3g9IjQwLjI1IiBjeT0iNDAuMjUiIHJ4PSIxMC4yNSIgcnk9IjYuMjUiIHRyYW5zZm9ybT0icm90YXRlKDMwIDQwLjI1IDQwLjI1KSIgZmlsbD0iI0ZGNUEwMCIgb3BhY2l0eT0iMC43Ii8+Cjwvc3ZnPg==">
     <!-- Chosen Palette: "Professional Trust" - A palette of warm neutrals (slate gray, off-white), a deep navy blue for primary text and interactive elements, and a subtle gold for accents and calls-to-action. -->
-    <!-- Application Structure Plan: A single-page, vertical-scrolling application divided into thematic sections. Key interaction is a central tab-based navigation for the 'Our Core Services' section. This allows users to explore the 5 pillars (AML, Controls, etc.) in any order without overwhelming them with text. The flow is designed to guide the user from understanding the problem to seeing our solution, its benefits, and finally to a clear call-to-action. This non-linear exploration of services is more user-friendly than a static slide deck. -->
-    <!-- Visualization & Content Choices: The source report is purely textual. To create engagement, visualizations are structural and interactive, not data-driven. 1) 'The Challenge': Goal: Inform/Engage -> Method: Interactive cards (HTML/CSS/JS) to present pain points. 2) 'Core Services': Goal: Organize/Explore -> Method: A dynamic tab system (JS) to display detailed service descriptions. Icons (Unicode/CSS) are used within descriptions for clarity. 3) 'AML Controls Process': Goal: Explain Process -> Method: A simple flowchart created with styled HTML divs and borders. 4) 'Benefits': Goal: Inform -> Method: A clean grid layout with icons. All choices avoid SVG/Mermaid as required and use HTML/CSS/JS to make qualitative information more digestible and interactive. -->
+    <!-- Application Structure Plan: A single-page, vertical-scrolling application divided into thematic sections. Key interaction is a central tab-based navigation for the 'Our Core Services' section. The primary call to action now triggers a modal for booking a consultation, which includes a basic form and an interactive calendar. This provides a focused user flow for consultation booking directly on the page. -->
+    <!-- Visualization & Content Choices: The source report is purely textual. To create engagement, visualizations are structural and interactive, not data-driven. 1) 'The Challenge': Goal: Inform/Engage -> Method: Interactive cards (HTML/CSS/JS) to present pain points. 2) 'Core Services': Goal: Organize/Explore -> Method: A dynamic tab system (JS) to display detailed service descriptions. Icons (Unicode/CSS) are used within descriptions for clarity. 3) 'AML Controls Process': Goal: Explain Process -> Method: A simple flowchart created with styled HTML divs and borders. 4) 'Benefits': Goal: Inform -> Method: A clean grid layout with icons. 5) 'Consultation Booking': Goal: Facilitate Action -> Method: A modal with form inputs and an interactive calendar. All choices avoid SVG/Mermaid as required and use HTML/CSS/JS to make qualitative information more digestible and interactive. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
@@ -53,6 +53,115 @@
             color: transparent;
             display: inline-block;
         }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 90%;
+            width: 800px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: fadeInModal 0.3s ease-out;
+            max-height: 90vh; /* Limit modal height */
+            overflow-y: auto; /* Enable scrolling within modal if content overflows */
+        }
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        @keyframes fadeInModal {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Calendar styles */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+        .calendar-day {
+            padding: 8px;
+            text-align: center;
+            border-radius: 8px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .calendar-day:hover:not(.day-disabled):not(.day-selected) {
+            background-color: #e0e0e0;
+        }
+        .day-selected {
+            background-color: #d4af37 !important;
+            color: white;
+            font-weight: bold;
+        }
+        .day-disabled {
+            color: #ccc;
+            cursor: not-allowed;
+            background-color: #f8f8f8;
+        }
+        .day-header {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            color: #555;
+            padding-bottom: 8px;
+        }
+
+        /* Watermark effect for confirmation */
+        .confirmation-watermark {
+            position: relative;
+            overflow: hidden;
+            background-color: #fefefe; /* Ensure background is light for watermark visibility */
+            padding: 2rem;
+            border-radius: 8px;
+        }
+        .confirmation-watermark::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            width: 150%;
+            height: 150%;
+            opacity: 0.1; /* Adjust opacity for watermark visibility */
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmaWxsPSIjRjRGNEY0Ij4KICAgIDxwYXRoIGQ9Ik01MCw1IEw5MCwyNSBMOTAsNzUgTDUwLDk1IEwxMCw3NSBMMTAsMjUgWiIgc3Ryb2tlPSIjRjRGNEY0IiBzdHJva2Utd2lkdGg9IjUiIGZpbGw9Im5vbmUiLz4KICAgIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjE1IiBmaWxsPSIjRjRGNEY0Ii8+CiAgICA8ZWxsaXBzZSBjeD0iNjAiIGN5PSI0MCIgcng9IjEwIiByeT0iNiIgdHJhbnNmb3JtPSJyb3RhdGUoLTMwIDYwIDQwKSIgZmlsbD0iI0Y0RjRGNCIgb3BhY2l0eT0iMC43Ii8+CiAgICA8ZWxsaXBzZSBjeD0iNDAiIGN5PSI0MCIgcng9IjEwIiByeT0iNiIgdHJhbnNmb3JtPSJyb3RhdGUoMzAgNDAgNDApIiBmaWxsPSIjRjRGNEY0IiBvcGFjaXR5PSIwLjciLz4KPC9zdmc+');
+            background-repeat: no-repeat;
+            background-size: contain;
+            pointer-events: none; /* Ensure text remains selectable */
+            z-index: 0;
+        }
+        .confirmation-watermark > * {
+            position: relative;
+            z-index: 1;
+        }
     </style>
 </head>
 <body class="text-gray-700">
@@ -76,7 +185,7 @@
                 <a href="#services" class="text-gray-600 hover:text-navy font-medium cursor-pointer">Services</a>
                 <a href="#advantage" class="text-gray-600 hover:text-navy font-medium cursor-pointer">Advantage</a>
                 <a href="#clients" class="text-gray-600 hover:text-navy font-medium cursor-pointer">Clients</a>
-                <a href="#contact" class="bg-gold text-white font-bold py-2 px-4 rounded-lg shadow-md hover-bg-gold-dark transition-colors cursor-pointer">Get Started</a>
+                <button id="open-consultation-modal-nav" class="bg-gold text-white font-bold py-2 px-4 rounded-lg shadow-md hover-bg-gold-dark transition-colors cursor-pointer">Get Started</button>
             </div>
             <button id="mobile-menu-button" class="md:hidden text-navy cursor-pointer">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
@@ -86,7 +195,7 @@
             <a href="#services" class="block py-2 px-6 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Services</a>
             <a href="#advantage" class="block py-2 px-6 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Advantage</a>
             <a href="#clients" class="block py-2 px-6 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Clients</a>
-            <a href="#contact" class="block py-2 px-6 text-sm text-gold hover:bg-gray-100 cursor-pointer">Get Started</a>
+            <button id="open-consultation-modal-mobile" class="block w-full text-left py-2 px-6 text-sm text-gold hover:bg-gray-100 cursor-pointer">Get Started</button>
         </div>
     </header>
 
@@ -96,7 +205,7 @@
             <div class="container mx-auto px-6 text-center">
                 <h2 class="text-4xl md:text-6xl font-extrabold text-navy leading-tight">Navigating the Regulatory Maze with **Hive-Minded Confidence**</h2>
                 <p class="mt-6 text-lg md:text-xl max-w-3xl mx-auto text-gray-600">We transform compliance from a complex burden into a strategic advantage, letting your business **buzz with success** and focus on what you do best: growing your business.</p>
-                <a href="#contact" class="mt-8 inline-block bg-gold text-white font-bold text-lg py-3 px-8 rounded-lg shadow-xl hover-bg-gold-dark transition-all transform hover:scale-105 cursor-pointer">Request a Consultation</a>
+                <button id="open-consultation-modal-hero" class="mt-8 inline-block bg-gold text-white font-bold text-lg py-3 px-8 rounded-lg shadow-xl hover-bg-gold-dark transition-all transform hover:scale-105 cursor-pointer">Join the Hive: Request a Consultation</button>
             </div>
         </section>
 
@@ -284,6 +393,62 @@
         </div>
     </footer>
 
+    <!-- Consultation Modal -->
+    <div id="consultation-modal" class="modal">
+        <div class="modal-content text-gray-800">
+            <span class="close-button">&times;</span>
+            <div id="consultation-form-section">
+                <h3 class="text-3xl font-bold text-navy mb-6 text-center">Book Your **CompliHive Consultation**</h3>
+                <p class="mb-8 text-center text-gray-600">Let's find the perfect time to discuss how our hive can support your compliance needs.</p>
+                
+                <form id="booking-form" class="space-y-6">
+                    <div>
+                        <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-gold focus:border-gold" placeholder="Your Full Name" required>
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <input type="email" id="email" name="email" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-gold focus:border-gold" placeholder="your@example.com" required>
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-gold focus:border-gold" placeholder="e.g., 08033872677">
+                    </div>
+
+                    <div class="mt-8">
+                        <h4 class="text-xl font-semibold text-navy mb-4 text-center">Select a Date for Your Consultation</h4>
+                        <div class="flex justify-between items-center mb-4">
+                            <button type="button" id="prevMonth" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300">Prev</button>
+                            <h5 id="currentMonthYear" class="text-lg font-semibold text-navy"></h5>
+                            <button type="button" id="nextMonth" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300">Next</button>
+                        </div>
+                        <div id="calendar" class="calendar-grid text-sm"></div>
+                        <input type="hidden" id="selectedDate" name="selectedDate" required>
+                    </div>
+
+                    <div class="mt-8">
+                        <h4 class="text-xl font-semibold text-navy mb-4 text-center">Select a Time Slot</h4>
+                        <div id="time-slots" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <!-- Time slots will be generated here -->
+                        </div>
+                        <input type="hidden" id="selectedTime" name="selectedTime" required>
+                    </div>
+
+                    <button type="submit" class="w-full bg-gold text-white font-bold py-3 px-4 rounded-lg shadow-md hover-bg-gold-dark transition-colors cursor-pointer">Confirm Booking</button>
+                </form>
+            </div>
+
+            <!-- Confirmation Section (initially hidden) -->
+            <div id="booking-confirmation-section" class="hidden text-center confirmation-watermark">
+                <h3 class="text-3xl font-bold text-navy mb-4">Consultation Booked! 🎉</h3>
+                <p class="text-lg text-gray-700 mb-4">Thank you, <span id="conf-name" class="font-semibold text-gold"></span>!</p>
+                <p class="text-lg text-gray-700 mb-6">Your consultation for <strong id="conf-date" class="text-navy"></strong> at <strong id="conf-time" class="text-navy"></strong> has been successfully booked.</p>
+                <p class="text-sm text-gray-600 italic">A confirmation will be sent to <span id="conf-email" class="font-semibold"></span> (simulated: actual email sending requires a backend server). In a real application, an email would be sent to CompliHive Solutions, and the appointment would be added to both calendars.</p>
+                <button id="close-confirmation" class="mt-8 bg-navy text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-gray-700 transition-colors cursor-pointer">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const serviceData = {
@@ -375,7 +540,7 @@
                 });
             });
 
-            // Initial load
+            // Initial load for services tab
             const initialPanelId = 'panel-aml-policies';
             updatePanel(initialPanelId);
             
@@ -384,6 +549,195 @@
             const mobileMenu = document.getElementById('mobile-menu');
             mobileMenuButton.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
+            });
+
+            // Modal Logic
+            const consultationModal = document.getElementById('consultation-modal');
+            const openConsultationModalHero = document.getElementById('open-consultation-modal-hero');
+            const openConsultationModalNav = document.getElementById('open-consultation-modal-nav');
+            const openConsultationModalMobile = document.getElementById('open-consultation-modal-mobile');
+            const closeButton = consultationModal.querySelector('.close-button');
+            const closeConfirmationButton = document.getElementById('close-confirmation');
+            const bookingFormSection = document.getElementById('consultation-form-section');
+            const bookingConfirmationSection = document.getElementById('booking-confirmation-section');
+
+            function showModal() {
+                consultationModal.style.display = 'flex';
+                bookingFormSection.classList.remove('hidden');
+                bookingConfirmationSection.classList.add('hidden');
+                document.getElementById('booking-form').reset(); // Reset form on open
+                selectedDate = null; // Clear selected date
+                selectedTime = null; // Clear selected time
+                renderCalendar(currentMonth, currentYear); // Re-render calendar
+                generateTimeSlots(); // Re-generate time slots
+            }
+
+            function closeModal() {
+                consultationModal.style.display = 'none';
+            }
+
+            openConsultationModalHero.addEventListener('click', showModal);
+            openConsultationModalNav.addEventListener('click', showModal);
+            openConsultationModalMobile.addEventListener('click', showModal);
+            closeButton.addEventListener('click', closeModal);
+            closeConfirmationButton.addEventListener('click', closeModal);
+
+            window.addEventListener('click', (event) => {
+                if (event.target === consultationModal) {
+                    closeModal();
+                }
+            });
+
+            // Calendar Logic
+            const calendarEl = document.getElementById('calendar');
+            const currentMonthYearEl = document.getElementById('currentMonthYear');
+            const prevMonthBtn = document.getElementById('prevMonth');
+            const nextMonthBtn = document.getElementById('nextMonth');
+            const selectedDateInput = document.getElementById('selectedDate');
+            const selectedTimeInput = document.getElementById('selectedTime');
+            const timeSlotsEl = document.getElementById('time-slots');
+
+            let currentMonth = new Date().getMonth();
+            let currentYear = new Date().getFullYear();
+            let selectedDate = null;
+            let selectedTime = null;
+
+            const timeSlots = [
+                '09:00 AM - 10:00 AM',
+                '10:00 AM - 11:00 AM',
+                '11:00 AM - 12:00 PM',
+                '01:00 PM - 02:00 PM',
+                '02:00 PM - 03:00 PM',
+                '03:00 PM - 04:00 PM'
+            ];
+
+            function renderCalendar(month, year) {
+                calendarEl.innerHTML = '';
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                currentMonthYearEl.textContent = new Date(year, month).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+                const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                dayHeaders.forEach(day => {
+                    const headerDiv = document.createElement('div');
+                    headerDiv.className = 'day-header';
+                    headerDiv.textContent = day;
+                    calendarEl.appendChild(headerDiv);
+                });
+
+                for (let i = 0; i < firstDay; i++) {
+                    calendarEl.appendChild(document.createElement('div')); // Empty leading cells
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'calendar-day';
+                    dayDiv.textContent = day;
+                    
+                    const date = new Date(year, month, day);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // Normalize today for comparison
+
+                    if (date < today) {
+                        dayDiv.classList.add('day-disabled');
+                    } else {
+                        dayDiv.addEventListener('click', () => {
+                            if (selectedDate) {
+                                document.querySelector(`.day-selected`)?.classList.remove('day-selected');
+                            }
+                            dayDiv.classList.add('day-selected');
+                            selectedDate = date.toISOString().split('T')[0]; // YYYY-MM-DD
+                            selectedDateInput.value = selectedDate;
+                            generateTimeSlots(); // Regenerate time slots based on selected date (optional, for real world this would check availability)
+                        });
+                        // Highlight initially selected date if re-rendering
+                        if (selectedDate && selectedDate === date.toISOString().split('T')[0]) {
+                            dayDiv.classList.add('day-selected');
+                        }
+                    }
+                    calendarEl.appendChild(dayDiv);
+                }
+            }
+
+            function generateTimeSlots() {
+                timeSlotsEl.innerHTML = '';
+                selectedTime = null; // Clear selected time when re-generating slots
+                selectedTimeInput.value = '';
+
+                timeSlots.forEach(slot => {
+                    const slotButton = document.createElement('button');
+                    slotButton.type = 'button';
+                    slotButton.className = 'px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors cursor-pointer text-gray-800';
+                    slotButton.textContent = slot;
+                    slotButton.addEventListener('click', () => {
+                        document.querySelectorAll('#time-slots button').forEach(btn => {
+                            btn.classList.remove('bg-gold', 'text-white');
+                            btn.classList.add('bg-gray-200', 'text-gray-800');
+                        });
+                        slotButton.classList.add('bg-gold', 'text-white');
+                        selectedTime = slot;
+                        selectedTimeInput.value = selectedTime;
+                    });
+                    timeSlotsEl.appendChild(slotButton);
+                });
+            }
+
+            prevMonthBtn.addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar(currentMonth, currentYear);
+            });
+
+            nextMonthBtn.addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                renderCalendar(currentMonth, currentYear);
+            });
+
+            // Initial render of calendar and time slots
+            renderCalendar(currentMonth, currentYear);
+            generateTimeSlots();
+
+            // Booking Form Submission (Simulated)
+            const bookingForm = document.getElementById('booking-form');
+            bookingForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const fullName = document.getElementById('fullName').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+                const bookedDate = selectedDateInput.value;
+                const bookedTime = selectedTimeInput.value;
+
+                if (!fullName || !email || !bookedDate || !bookedTime) {
+                    alert('Please fill in all required fields and select a date and time.');
+                    return;
+                }
+
+                // Simulate backend process
+                console.log(`Simulating booking for:
+                    Name: ${fullName}
+                    Email: ${email}
+                    Phone: ${phone}
+                    Date: ${bookedDate}
+                    Time: ${bookedTime}`);
+                
+                // Update confirmation section
+                document.getElementById('conf-name').textContent = fullName;
+                document.getElementById('conf-date').textContent = new Date(bookedDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                document.getElementById('conf-time').textContent = bookedTime;
+                document.getElementById('conf-email').textContent = email;
+
+                // Show confirmation, hide form
+                bookingFormSection.classList.add('hidden');
+                bookingConfirmationSection.classList.remove('hidden');
             });
         });
     </script>
